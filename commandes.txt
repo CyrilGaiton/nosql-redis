@@ -1,0 +1,17 @@
+
+docker-machine create redis-m-1
+docker-machine create redis-s-1
+docker-machine create redis-s-2
+
+eval $(docker-machine env redis-m-1)
+docker swarm init --advertise-addr $(docker-machine ip redis-m-1)
+"""copy the command to join the swarm"""
+
+docker-machine ssh redis-s-1 "<command>"
+docker-machine ssh redis-s-2 "<command>"
+
+docker network create --attachable --driver overlay redis-net
+
+docker stack deploy -c docker-compose.yml redis-stack
+
+docker run -it --rm --name rediscli --network redis-net redis:5.0.3-alpine redis-cli -h redis-master -p 6379

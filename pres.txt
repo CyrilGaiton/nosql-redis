@@ -1,0 +1,26 @@
+cache 2nd level cache -> portée global JVM voire au cluster
+hibernate le fourni avec plusieurs bases nosql clé valeur
+spécifie des stratégie : transactionnel pour jta, read-only, read/write ...
+             usages: classes, collecitons, ...
+
+Ducoup redis est un bdd no sql clé/valeur qu'on peu utiliser en cache de second niveau
+et aussi pour stocker des masses de donnnées qui n'ont pas de relation.
+
+Utilisation pratique en cluster:
+  1/ Avec Sentinel
+    Gere le fail-over donc permet haute disponibilité.
+    Dans la config avec 3 sentinel et 3 redis : 1 redis-master est utilisé,
+    et si le master tombe, sentinel promeut un des 2 redis-slave qui n'a fait,
+    depuis le debut, que copier les données du redis-master
+    Limitation : ne permet pas le sharding
+  
+  2/ Avec redis cluster, solution de redis
+    Fail-over, data sharding -> reparti les données entre les instances redis
+    Ne supporte pas opération multi-clés sur differentes instances
+    Chaque instance contenant une partie (hash slot) des données a 1 ou plusieurs replicats pour la disponibilité
+    Si un master qui contient une partie des données tombe, il est remplacé par un des ces slaves
+    Limitations avec docker : ca ne supporte par les ip dynamique mais docker propose des networks avec ip fixes
+    Limitation : il faut un client intelligent capable de se connecter aux bonnes instance pour couvrir touts les hash slot
+
+
+
